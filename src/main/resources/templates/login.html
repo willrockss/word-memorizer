@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SignMemorizer</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+    <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+</head>
+<body width="300px">
+<div align="center">
+<div th:if="${param.error}">
+    Некорректный логин и\или пароль
+</div>
+<div th:if="${param.logout}">
+    Вы успешно разлогинились
+</div>
+<form action="main.html" th:action="@{/login}" method="post">
+    <!-- TODO Избавиться от табличного форматирования -->
+    <table>
+        <tr>
+            <td width="50%"><label style="float:right">Имя пользователя:</label></td>
+            <td><input type="text" name="username" autofocus=""/></td>
+        </tr>
+        <tr>
+            <td width="50%"><label style="float:right">Пароль:</label></td>
+            <td><input type="password" name="password"/></td>
+        </tr>
+    </table>
+    <input type="submit" value="Войти"/>
+    <div class="disclaimer">
+        Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+        вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+        ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+    </div>
+</form>
+</div>
+</body>
+</html>

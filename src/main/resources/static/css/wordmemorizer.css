@@ -1,0 +1,8 @@
+.disclaimer {
+	position: fixed; /* Фиксированное положение */
+	left: 0; bottom: 0; /* Левый нижний угол */
+	padding: 10px; /* Поля вокруг текста */
+	width: 100%; /* Ширина слоя */
+	font-size:smaller;
+	text-align:left
+}

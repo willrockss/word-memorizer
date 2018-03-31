@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SignMemorizer</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+</head>
+<body>
+<div align="center">
+    <input type="submit" value="На главную" onclick="window.location='/'" > <p/>
+
+    <div th:if="${error}">
+        <label th:text="${error}"/>
+    </div>
+    <div th:if="${message}">
+        <label th:text="${message}"/>
+    </div>
+
+    <form action="#" th:action="@{/add-dict}" th:object="${dict}" method="post">
+        <p>Название нового словаря: <input type="text" th:field="*{name}" /> </p>
+        <input type="submit" />
+    </form>
+</div>
+</body>
+</html>

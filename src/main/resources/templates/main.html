@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SignMemorizer</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+    <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <div align="center">
+        <script>
+            function train() {
+                var action = document.getElementById('action_element');
+                if (typeof(action) != 'undefined') {
+                    action.value = 'TRAINING';
+                } else {
+                    alert('action_element is undefined!');
+                }
+                console.log('action.value = ' + action.value);
+                //window.location.assign('/training?dict=' + dictIdParam);
+            }
+        </script>
+
+        <div th:if="${error}">
+            <label th:text="${error}"/>
+        </div>
+
+        <form action="#" th:action="@{/}" th:object="${mainForm}">
+            <input id="action_element" type="hidden" th:field="*{{action}}"/>
+            <label for="dict_select">Словарь для тренировки: </label>
+            <select id="dict_select" th:field="*{dictId}">
+                <option th:each="dict : ${dicts}" th:value="${dict.id}" th:text="${dict.name}"></option>
+            </select>
+            <input type="submit" value="Поехали" onclick="train()"/>
+        </form>
+        <p>
+            <a href="/add-word">Добавить слово</a>
+            <a href="/add-dict">Создать новый словарь</a>
+            <!--<a href="/dict-management">Редактирование наборов</a>-->
+        <p/>
+    </div>
+    <div class="disclaimer">
+        Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+        вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+        ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+    </div>
+</body>
+</html>

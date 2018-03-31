@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SignMemorizer</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+    <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div align="center">
+    <script>
+            function setAction(value) {
+                var action = document.getElementById('action_element');
+                if (typeof(action) != 'undefined') {
+                    action.value = value;
+                } else {
+                    alert('action_element is undefined!');
+                }
+                console.log('action.value = ' + action.value);
+            }
+    </script>
+
+    <form action="#" th:action="@{/training}" th:object="${trainingForm}">
+        <input id="action_element" type="hidden" th:field="*{{action}}"/>
+
+        <input type="submit" value="Назад" onclick="setAction('BACK')"/> <p/>
+
+        <video id="spreadthesign_video" autoplay="" loop="" preload="auto" muted="" width="320" height="240" poster="/img/">
+            <source th:src="${word.videoUrl}" type="video/mp4">
+        </video>
+
+        <p>
+            <input type="button" value="Показать ответ"
+                   onclick="document.getElementById('answer').style.visibility='visible'"/>
+        </p>
+        <p>
+            <label id="answer" style="visibility:hidden" th:text="${word.value}"/>
+        <p/>
+        <p>
+            <input type="submit" value="Не помню :(" onclick="setAction('BAD_RESULT')"/>
+            <input type="submit" value="Не очень" onclick="setAction('MIDDLE_RESULT')"/>
+            <input type="submit" value="Помню" onclick="setAction('GOOD_RESULT')"/>
+        </p>
+    </form>
+</div>
+</body>
+</html>

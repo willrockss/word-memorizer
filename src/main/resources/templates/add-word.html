@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SignMemorizer</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+    <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div align="center">
+    <script>
+            function setAction(value) {
+                var action = document.getElementById('action_element');
+                if (typeof(action) != 'undefined') {
+                    action.value = value;
+                } else {
+                    alert('action_element is undefined!');
+                }
+                console.log('action.value = ' + action.value);
+            }
+    </script>
+    <div th:if="${error}">
+        <label th:text="${error}"/>
+    </div>
+    <div th:if="${message}">
+        <label th:text="${message}"/>
+    </div>
+    <form action="#" method="POST" enctype="multipart/form-data" th:action="@{/add-word}" th:object="${wordManagementForm}">
+        <input id="action_element" type="hidden" th:field="*{{action}}"/>
+
+        <label for="file">Видео с жестом: </label><input type="file" id="file" name="file" accept="video/*;capture=camera"/> <br/>
+        <label for="word">Значение жеста: </label><input id="word" name="word" type="text" value=""/> <br/>
+        <label for="dict_select">Словарь для тренировки: </label>
+        <select id="dict_select" th:field="*{dictId}">
+            <option th:each="dict : ${dicts}" th:value="${dict.id}" th:text="${dict.name}"></option>
+        </select> <br/>
+
+        <input type="submit" value="Загрузить" />
+    </form>
+</div>
+<div class="disclaimer">
+    Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+    вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+    ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+</div>
+</body>
+</html>
