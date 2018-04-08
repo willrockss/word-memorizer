@@ -1,7 +1,9 @@
 package com.kluev.wordmemorizer.web.controller;
 
+import com.kluev.wordmemorizer.web.model.Captcha;
 import com.kluev.wordmemorizer.web.model.Word;
 import com.kluev.wordmemorizer.web.model.Dictionary;
+import com.kluev.wordmemorizer.web.model.mapper.CaptchaRowMapper;
 import com.kluev.wordmemorizer.web.model.mapper.WordRowMapper;
 import com.kluev.wordmemorizer.web.model.mapper.DictRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 //TODO Переписать с использованием NamedParameterJdbcTemplate
 @Component
@@ -177,5 +180,14 @@ public class DBUtils {
         }
 
         return null;
+    }
+
+    public Optional<Captcha> getCaptcha() {
+        String sql = "SELECT question, answer FROM captcha ORDER BY random() LIMIT 1";
+        List<Captcha> res = jdbcTemplate.query(sql, new CaptchaRowMapper());
+        if (!res.isEmpty()) {
+            return Optional.ofNullable(res.get(0));
+        }
+        return Optional.empty();
     }
 }

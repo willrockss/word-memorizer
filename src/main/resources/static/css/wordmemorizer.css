@@ -6,3 +6,8 @@
 	font-size:smaller;
 	text-align:left
 }
+
+/* Позволяет сдлеать многострочный label*/
+label {
+  white-space: pre-wrap;
+}

@@ -1,5 +1,7 @@
 package com.kluev.wordmemorizer;
 
+import com.kluev.wordmemorizer.utils.CaptchaService;
+import com.kluev.wordmemorizer.utils.RiddleCaptcha;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,5 +40,10 @@ public class WordMemorizerApplication {
 		viewResolver.setOrder(1);
 		viewResolver.setViewNames(new String[]{"*.html", "*.xhtml", "*.htm"});
 		return viewResolver;
+	}
+
+	@Bean
+	public CaptchaService getCaptchaService() {
+		return new RiddleCaptcha();
 	}
 }
