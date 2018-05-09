@@ -114,7 +114,7 @@ public class TrainingController {
             IOUtils.write(data, output);
             output.flush();
         } catch (IOException ex) {
-            throw new RuntimeException("IOError writing file to output stream");
+            throw new RuntimeException("IOError writing file to output stream", ex);
         }
     }
 }

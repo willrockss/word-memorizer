@@ -5,35 +5,69 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
     <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="//unpkg.com/element-ui@2.3.4/lib/theme-chalk/index.css" type="text/css">
 </head>
 <body width="300px">
-<div align="center">
 <div th:if="${param.error}">
     Некорректный логин и\или пароль
 </div>
 <div th:if="${param.logout}">
     Вы успешно разлогинились
 </div>
-<form action="main.html" th:action="@{/login}" method="post">
-    <!-- TODO Избавиться от табличного форматирования -->
-    <table>
-        <tr>
-            <td width="50%"><label style="float:right">Имя пользователя:</label></td>
-            <td><input type="text" name="username" autofocus=""/></td>
-        </tr>
-        <tr>
-            <td width="50%"><label style="float:right">Пароль:</label></td>
-            <td><input type="password" name="password"/></td>
-        </tr>
-    </table>
-    <input type="submit" value="Войти"/> <br/>
-    <input type="button" value="Зарегистрироваться" onclick="window.location='/registration'"/>
-    <div class="disclaimer">
-        Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
-        вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
-        ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
-    </div>
-</form>
+
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.3.4/lib/index.js"></script>
+
+<div id="app" align="center">
+    <el-container style="width:270px; height:500px; border: 1px solid #eee">
+        <el-main>
+            <el-form id="main-form" th:action="@{/login}" method="post" ref="form"
+                     :model="form" size="small">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <el-form-item>
+                    <el-input name="username" v-model="form.login" placeholder="Логин"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-input name="password" type="password" v-model="form.password" placeholder="Пароль"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" native-type='submit'>Войти</el-button>
+                    <el-button v-on:click="goRegistrationForm">Зарегистрироваться</el-button>
+                </el-form-item>
+            </el-form>
+        </el-main>
+        <el-footer style="width=150px" height="160px">
+            <div style="font-size:smaller; text-align: left">
+            Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+            вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+            ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+            </div>
+        </el-footer>
+    </el-container>
 </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    var Main = {
+        data() {
+          return {
+            form: {
+              login: "",
+              password: ""
+            }
+          };
+        },
+        methods: {
+          goRegistrationForm() {
+            window.location = '/registration';
+          }
+        }
+      }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+
+/*]]>*/
+</script>
 </body>
 </html>

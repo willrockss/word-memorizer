@@ -5,43 +5,96 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
     <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="//unpkg.com/element-ui@2.3.4/lib/theme-chalk/index.css" type="text/css">
 </head>
 <body>
-<div align="center">
-    <script>
-            function setAction(value) {
-                var action = document.getElementById('action_element');
-                if (typeof(action) != 'undefined') {
-                    action.value = value;
-                } else {
-                    alert('action_element is undefined!');
-                }
-                console.log('action.value = ' + action.value);
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.3.4/lib/index.js"></script>
+
+<div id="app" align="center">
+    <el-container style="width:300px; height:700px; border: 1px solid #eee">
+        <div th:if="${error}">
+            <label th:text="${error}"/>
+        </div>
+        <div th:if="${message}">
+            <label th:text="${message}"/>
+        </div>
+        <el-main>
+            <el-form id="main-form" action="/add-word" method="post" ref="form" enctype="multipart/form-data"
+                     :model="form" size="small">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <el-form-item>
+                    <el-button v-on:click="goMain">&#8617; На главную</el-button>
+                </el-form-item>
+
+                <input id="action_element" type="hidden" name="action"/>
+                <!-- Так как Vue преобразует el-select к text, то для хранения dictId создаем отдельное поле
+                     чтобы передать номер словаря в POST запросе в виде числа, а не названия.
+                 -->
+                <input id="dict_id" type="hidden" v-model="form.dictId" name="dictId"/>
+
+                <el-form-item label="Словарь, куда добавить новое слово">
+                    <el-select type="select" v-model="form.dictId" placeholder="Выберите словарь">
+                        <el-option :label="default_item.label" :value="default_item.value" :disabled="true"></el-option>
+                        <el-option
+                                v-for="item in form.dicts"
+                                :label="item.name"
+                                :key="item.id"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
+                    <el-button v-on:click="addDict">Создать новый словарь</el-button>
+                </el-form-item>
+                <el-form-item label="Видео с жестом:">
+                    <input type="file" id="file" name="file" accept="video/*;capture=camera"/>
+                </el-form-item>
+                <el-form-item label="Значение жеста">
+                    <el-input v-model="form.word" name="word"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" native-type='submit'>Загрузить</el-button>
+                </el-form-item>
+            </el-form>
+        </el-main>
+        <el-footer style="width=150px" height="160px">
+            <div style="font-size:smaller; text-align: left">
+                Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+                вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+                ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+            </div>
+        </el-footer>
+    </el-container>
+</div>
+
+<!-- Код со "странными" комментариями и заворачиванием всё в массив - особенность thymeleaf -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+    var Main = {
+        data() {
+          return {
+            form: {
+              dicts:  /*[[${dicts}]]*/ "[]",
+              dictId: parseInt(/*[[${dictId}]]*/ null),
+              word:""
+            },
+            default_item: {label: 'Выберите словарь', value: -2}
+          };
+        },
+        methods: {
+            addDict() {
+                window.location.assign('/add-dict');
+            },
+            goMain() {
+                window.location.assign('/');
             }
-    </script>
-    <div th:if="${error}">
-        <label th:text="${error}"/>
-    </div>
-    <div th:if="${message}">
-        <label th:text="${message}"/>
-    </div>
-    <form action="#" method="POST" enctype="multipart/form-data" th:action="@{/add-word}" th:object="${wordManagementForm}">
-        <input id="action_element" type="hidden" th:field="*{{action}}"/>
+        }
+      }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
 
-        <label for="file">Видео с жестом: </label><input type="file" id="file" name="file" accept="video/*;capture=camera"/> <br/>
-        <label for="word">Значение жеста: </label><input id="word" name="word" type="text" value=""/> <br/>
-        <label for="dict_select">Словарь для тренировки: </label>
-        <select id="dict_select" th:field="*{dictId}">
-            <option th:each="dict : ${dicts}" th:value="${dict.id}" th:text="${dict.name}"></option>
-        </select> <br/>
-
-        <input type="submit" value="Загрузить" />
-    </form>
-</div>
-<div class="disclaimer">
-    Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
-    вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
-    ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
-</div>
+/*]]>*/
+</script>
 </body>
 </html>

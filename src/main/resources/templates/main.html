@@ -5,44 +5,81 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
     <link href="css/wordmemorizer.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="//unpkg.com/element-ui@2.3.4/lib/theme-chalk/index.css" type="text/css">
 </head>
 <body>
-    <div align="center">
-        <script>
-            function train() {
-                var action = document.getElementById('action_element');
-                if (typeof(action) != 'undefined') {
-                    action.value = 'TRAINING';
-                } else {
-                    alert('action_element is undefined!');
-                }
-                console.log('action.value = ' + action.value);
-                //window.location.assign('/training?dict=' + dictIdParam);
+    <script src="//unpkg.com/vue/dist/vue.js"></script>
+    <script src="//unpkg.com/element-ui@2.3.4/lib/index.js"></script>
+
+    <div id="app" align="center">
+        <el-container style="width:270px; height:600px; border: 1px solid #eee">
+            <div th:if="${error}">
+                <label th:text="${error}"/>
+            </div>
+            <el-main>
+                <el-form id="main-form" action="/" method="post" ref="form"
+                         :model="form" size="small">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input id="action_element" type="hidden" name="action"/>
+                    <!-- Так как Vue преобразует el-select к text, то для хранения dictId создаваться отдельное поле
+                         чтобы передать его в POST запросе
+                     -->
+                    <input id="dict_id" type="hidden" v-model="form.dictId" name="dictId"/>
+                    <el-form-item>
+                        <el-select type="select" v-model="form.dictId" placeholder="Выберите словарь">
+                            <el-option
+                                    v-for="item in form.dicts"
+                                    :label="item.name"
+                                    :key="item.id"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" native-type='submit' v-on:click="go">Поехали</el-button>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button v-on:click="addWord">Добавить слово</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-main>
+            <el-footer style="width=150px" height="160px">
+                <div style="font-size:smaller; text-align: left">
+                    Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+                    вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+                    ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+                </div>
+            </el-footer>
+        </el-container>
+    </div>
+
+    <!-- Код со "странными" комментариями - особенность thymeleaf -->
+    <script th:inline="javascript">
+/*<![CDATA[*/
+
+    var Main = {
+        data() {
+          return {
+            form: {
+              dicts:  /*[[${dicts}]]*/ "[]",
+              dictId: -1
             }
-        </script>
+          };
+        },
+        methods: {
+           go() {
+            //TODO Задавать это значение сразу через vue model
+            document.getElementById('action_element').value = 'TRAINING';
+          },
+          addWord() {
+           window.location.assign('/add-word');
+          }
+        }
+      }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
 
-        <div th:if="${error}">
-            <label th:text="${error}"/>
-        </div>
-
-        <form action="#" th:action="@{/}" th:object="${mainForm}">
-            <input id="action_element" type="hidden" th:field="*{{action}}"/>
-            <label for="dict_select">Словарь для тренировки: </label>
-            <select id="dict_select" th:field="*{dictId}">
-                <option th:each="dict : ${dicts}" th:value="${dict.id}" th:text="${dict.name}"></option>
-            </select>
-            <input type="submit" value="Поехали" onclick="train()"/>
-        </form>
-        <p>
-            <a href="/add-word">Добавить слово</a>
-            <a href="/add-dict">Создать новый словарь</a>
-            <!--<a href="/dict-management">Редактирование наборов</a>-->
-        <p/>
-    </div>
-    <div class="disclaimer">
-        Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
-        вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
-        ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
-    </div>
+/*]]>*/
+</script>
 </body>
 </html>

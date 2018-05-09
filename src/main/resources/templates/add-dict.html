@@ -4,22 +4,67 @@
     <title>SignMemorizer</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="height=device-height,user-scalable=yes,width=380" />
+    <link rel="stylesheet" href="//unpkg.com/element-ui@2.3.4/lib/theme-chalk/index.css" type="text/css">
 </head>
 <body>
-<div align="center">
-    <input type="submit" value="На главную" onclick="window.location='/'" > <p/>
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.3.4/lib/index.js"></script>
 
-    <div th:if="${error}">
-        <label th:text="${error}"/>
-    </div>
-    <div th:if="${message}">
-        <label th:text="${message}"/>
-    </div>
+<div id="app" align="center">
+    <el-container style="width:300px; height:600px; border: 1px solid #eee">
+        <div th:if="${error}">
+            <label th:text="${error}"/>
+        </div>
+        <div th:if="${message}">
+            <label th:text="${message}"/>
+        </div>
+        <el-main>
+            <el-form id="main-form" action="/add-dict" method="post" ref="form" :model="form" size="small">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-    <form action="#" th:action="@{/add-dict}" th:object="${dict}" method="post">
-        <p>Название нового словаря: <input type="text" th:field="*{name}" /> </p>
-        <input type="submit" />
-    </form>
+                <el-form-item>
+                    <el-button v-on:click="goMain">&#8617; На главную</el-button>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-input name="name" v-model="form.name" placeholder="Введите название нового словаря"></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" native-type='submit'>Создать</el-button>
+                </el-form-item>
+            </el-form>
+        </el-main>
+        <el-footer style="width=150px" height="160px">
+            <div style="font-size:smaller; text-align: left">
+                Это проект, работающий по принципу «как есть», без заключения каких-либо договорённостей или договоров между
+                вами, пользователями данного сайта, администрацией, владельцами серверов, на которых он размещён, либо кем-то
+                ещё. Администрация сайта не несёт ответственности за информацию, размещённую пользователями.
+            </div>
+        </el-footer>
+    </el-container>
 </div>
+
+<!-- Код со "странными" комментариями и заворачиванием всё в массив - особенность thymeleaf -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+    var Main = {
+        data() {
+          return {
+            form: {
+            }
+          };
+        },
+        methods: {
+            goMain() {
+                window.location.assign('/');
+            }
+        }
+      }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+
+/*]]>*/
+</script>
 </body>
 </html>

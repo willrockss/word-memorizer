@@ -156,7 +156,7 @@ WITH (
 );
 
 
---Добавляем табличку камчи с тройкой тестовых данных
+--Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС‡РєСѓ РєР°РјС‡Рё СЃ С‚СЂРѕР№РєРѕР№ С‚РµСЃС‚РѕРІС‹С… РґР°РЅРЅС‹С…
 CREATE TABLE IF NOT EXISTS captcha 
 (
   question character varying NOT NULL UNIQUE,
@@ -165,11 +165,21 @@ CREATE TABLE IF NOT EXISTS captcha
 
 WITH data(question, answer) AS (
 VALUES
-	('Висит груша, нельзя скушать', 'лампочка'),
-    ('Зимой и летом одним цветом', 'елка ёлка ель ёлочка елочка'),
-	('Сидит девица в темнице, а коса на улице', 'морковь морковка свекла свёкла')
+	('Р’РёСЃРёС‚ РіСЂСѓС€Р°, РЅРµР»СЊР·СЏ СЃРєСѓС€Р°С‚СЊ', 'Р»Р°РјРїРѕС‡РєР°'),
+    ('Р—РёРјРѕР№ Рё Р»РµС‚РѕРј РѕРґРЅРёРј С†РІРµС‚РѕРј', 'РµР»РєР° С‘Р»РєР° РµР»СЊ С‘Р»РѕС‡РєР° РµР»РѕС‡РєР°'),
+	('РЎРёРґРёС‚ РґРµРІРёС†Р° РІ С‚РµРјРЅРёС†Рµ, Р° РєРѕСЃР° РЅР° СѓР»РёС†Рµ', 'РјРѕСЂРєРѕРІСЊ РјРѕСЂРєРѕРІРєР° СЃРІРµРєР»Р° СЃРІС‘РєР»Р°')
 )
 INSERT INTO captcha(question, answer)
 SELECT data.question, data.answer
 FROM data
 WHERE NOT EXISTS (SELECT 1 FROM captcha c2 WHERE c2.question = data.question);
+
+-- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС‡РєСѓ, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґСѓС‚ Р·Р°РїРёСЃС‹РІР°С‚СЊСЃСЏ Р°С‚СЂРёР±СѓС‚С‹ СЃР»РѕРІР°СЂРµР№
+CREATE TABLE IF NOT EXISTS dict_attribute_value
+(
+  dict_id integer NOT NULL REFERENCES dict (id),
+  attribute_code character varying NOT NULL,
+  string_value character varying,
+  timestamp_value timestamp with time zone,
+  number_value numeric
+);

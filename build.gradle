@@ -45,6 +45,7 @@ dependencies {
 
 	// Fo DB
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: springBootVersion
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
 
 	compile("org.springframework.boot:spring-boot-starter-thymeleaf")

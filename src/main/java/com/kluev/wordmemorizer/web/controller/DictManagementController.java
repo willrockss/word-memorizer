@@ -31,14 +31,17 @@ public class DictManagementController {
         return new ModelAndView("add-dict", Collections.singletonMap("dict", dict));
     }
     @PostMapping("/add-dict")
-    public ModelAndView saveDict(@ModelAttribute Dictionary dict, RedirectAttributes redirectAttributes) {
-        if (db.isDictPresent(dict.getName())) {
+    public ModelAndView saveDict(@ModelAttribute(name="name") String dictName, RedirectAttributes redirectAttributes) {
+        if (dictName == null || dictName.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Имя словаря не может быть пустым");
+        } else if (db.isDictPresent(dictName)) {
             redirectAttributes.addFlashAttribute("error", "Словарь с таким именем уже существует! Выберите другое.");
         } else {
             try {
-                boolean res = db.saveDict(dict.getName());
-                if (res) {
-                    redirectAttributes.addFlashAttribute("message", "Словарь \"" + dict.getName() + "\" успешно добавлен");
+                Integer dictId = db.saveDict(dictName);
+                if (dictId != null) {
+                    redirectAttributes.addFlashAttribute("message", "Словарь \"" + dictName + "\" успешно добавлен");
+                    return new ModelAndView("redirect:/add-word?dictId=" + dictId);
                 }
             } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("error", "Что-то пошло не так: " + e.getMessage());

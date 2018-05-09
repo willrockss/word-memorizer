@@ -37,7 +37,8 @@ public class RegistrationController {
     private CaptchaService captchaService;
 
     @GetMapping("/registration")
-    public ModelAndView registrationGet(ModelMap model,
+    public ModelAndView registrationGet(HttpServletRequest request,
+                                        ModelMap model,
                                         HttpSession session,
                                         @ModelAttribute RegistrationForm regForm)
     {
@@ -79,11 +80,14 @@ public class RegistrationController {
         }
 
         String captchaCorrectAnswer = (String) session.getAttribute("captchaCorrectAnswer");
-        String captchaAnswer = regForm.getCaptchaAnswer().trim();
-        if (!captchaCorrectAnswer.contains(captchaAnswer)) {
-            redirectAttributes.addFlashAttribute("error", "Капча введена неверно!");
-            return new ModelAndView("redirect:/registration");
+        if (captchaCorrectAnswer != null) {
+            String captchaAnswer = regForm.getCaptchaAnswer().trim().toLowerCase();
+            if (captchaAnswer.isEmpty() || !captchaCorrectAnswer.contains(captchaAnswer)) {
+                    redirectAttributes.addFlashAttribute("error", "Капча введена неверно!");
+                return new ModelAndView("redirect:/registration");
+            }
         }
+
 
         if (userDetailsManager.userExists(username)) {
             redirectAttributes.addFlashAttribute("error",
@@ -95,6 +99,7 @@ public class RegistrationController {
         userDetailsManager.createUser(newUser);
 
         try {
+            //TODO Написать обработку ситуации, когда пользователь был уже залогинен
             request.login(username, password);
         } catch (ServletException e) {
             e.printStackTrace();

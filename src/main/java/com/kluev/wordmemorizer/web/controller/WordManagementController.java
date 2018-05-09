@@ -34,19 +34,17 @@ public class WordManagementController {
     private VideoConverter videoConverter;
 
     @GetMapping("/add-word")
-    public ModelAndView addWordGet(Principal principal,
-                                   ModelMap model,
-                                   RedirectAttributes redirectAttributes,
-                                   HttpSession session,
-                                   @ModelAttribute WordManagementForm wordManagementForm)
+    public ModelAndView addWordGet(ModelMap model, @RequestParam(required = false, defaultValue = "-2") String dictId)
     {
+        model.addAttribute("dictId", dictId);
+
         List<Dictionary> dicts = getDictList();
         model.addAttribute("dicts", dicts);
         return new ModelAndView("add-word", model);
     }
 
     public List<Dictionary> getDictList() {
-        return db.getDictionariesList();
+        return db.getEditableDictionariesList();
     }
 
     @PostMapping("/add-word")
@@ -59,7 +57,7 @@ public class WordManagementController {
             errorValue = "Выберите видео для загрузки";
         } else if (word == null || word.trim().isEmpty()) {
             errorValue = "Укажите не пустое значение жеста";
-        } else if (wordManagementForm.getDictId() == null) {
+        } else if (wordManagementForm.getDictId() == null || wordManagementForm.getDictId() < 0) {
             errorValue = "Выберите словарь, в который хотите добавить новый жест";
         } else {
             Integer nextWordId = db.getNextWordId();

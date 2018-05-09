@@ -8,8 +8,11 @@ import com.kluev.wordmemorizer.web.model.mapper.WordRowMapper;
 import com.kluev.wordmemorizer.web.model.mapper.DictRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,10 +121,30 @@ public class DBUtils {
     }
 
     public List<Dictionary> getDictionariesList() {
-        String sql = "select id, name from dict;";
+        String sql = "select id, name from dict";
         return jdbcTemplate.query(sql, new DictRowMapper());
     }
 
+
+    /**
+     * Метод возвращает список словарей, которые текущий пользователь может редактировать.
+     * Редактировать словарь может либо пользователь с ролью <code>ADMIN</code>, либо пользователь, указанный в
+     * качестве значения атрибута <code>AUTHOR</code> в словаре.
+     * */
+    public List<Dictionary> getEditableDictionariesList() {
+        String username = getCurrentUsername();
+        if (username == null) {
+            return Collections.emptyList();
+        }
+
+        String sql = "SELECT * FROM dict d\n" +
+                     "JOIN authorities auth ON auth.username = ?\n" +
+                     "LEFT JOIN dict_attribute_value dav ON dav.dict_id = d.id AND dav.attribute_code = 'AUTHOR'\n" +
+                     "WHERE auth.authority = 'ADMIN' OR dav.string_value = ?";
+        return jdbcTemplate.query(sql, new Object[]{username, username}, new DictRowMapper());
+    }
+
+    //TODO получать пользователя методом getUsername
     public void addLoginInfo(String username) {
         if (username != null) {
             String sql = "INSERT INTO action_log(username, action_name, action_time)\n" +
@@ -129,7 +152,7 @@ public class DBUtils {
             try {
                 jdbcTemplate.update(sql);
             } catch (Exception e) {
-                e.printStackTrace();
+                    e.printStackTrace();
             }
         } else {
             System.out.println("Username is null!!!");
@@ -143,9 +166,9 @@ public class DBUtils {
 
     public void addWord(Integer wordId, String word, Integer videoId) {
         String sql =
-                "insert into word(id, value, video_id, loaded, created)\n" +
-                "select " + wordId + ", '" + word + "', " + videoId + ", true, now()\n" +
-                "where not exists (select 1 from word where video_id = " + videoId + ");";
+                "INSERT INTO word(id, value, video_id, video_url, loaded, created)\n" +
+                "SELECT " + wordId + ", '" + word + "', " + videoId + ",'/video/" + wordId + ".mp4' ,true, now()\n" +
+                "WHERE NOT EXISTS (SELECT 1 FROM word WHERE video_id = " + videoId + ")";
         jdbcTemplate.update(sql);
     }
 
@@ -163,12 +186,27 @@ public class DBUtils {
         return !val.isEmpty();
     }
 
-    public boolean saveDict(String name) {
+    public Integer saveDict(String name) {
+        String username = getCurrentUsername();
+        if (username == null) {
+            //TODO log
+            return null;
+        }
+
+        Integer dictId = null;
         String sql ="INSERT INTO dict(name)\n" +
                     "SELECT ? \n" +
                     "WHERE NOT EXISTS (SELECT 1 FROM dict WHERE name ilike trim(from ?))";
+        if (jdbcTemplate.update(sql, name, name) == 1) {
+            dictId = jdbcTemplate.queryForObject("SELECT id FROM dict WHERE name = ?", Integer.class, name);
+        }
 
-        return jdbcTemplate.update(sql, name, name) == 1;
+        // Записываем в атрибут "Автор" словаря текущего пользователя
+        String sqlSetAuthor = "INSERT INTO dict_attribute_value(dict_id, attribute_code, string_value) \n" +
+                              "SELECT ?, 'AUTHOR', ? \n" +
+                              "WHERE NOT EXISTS (SELECT 1 FROM dict_attribute_value WHERE dict_id = ? AND attribute_code = 'AUTHOR')";
+        jdbcTemplate.update(sqlSetAuthor, dictId, username, dictId);
+        return dictId;
     }
 
     public String getAppProperty(String key) {
@@ -189,5 +227,11 @@ public class DBUtils {
             return Optional.ofNullable(res.get(0));
         }
         return Optional.empty();
+    }
+
+    public String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails details =  principal instanceof  UserDetails ? (UserDetails) principal : null;
+        return details != null ? details.getUsername() : null;
     }
 }
