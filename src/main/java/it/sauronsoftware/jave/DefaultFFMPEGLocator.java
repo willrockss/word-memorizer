@@ -18,6 +18,8 @@
  */
 package it.sauronsoftware.jave;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,15 +70,8 @@ public class DefaultFFMPEGLocator extends FFMPEGLocator {
 		String suffix = isWindows ? ".exe" : "";
 		File exe = new File(temp, "ffmpeg" + suffix);
 		if (!exe.exists()) {
-			copyFile("ffmpeg" + suffix, exe);
+			copyFile("/bin/ffmpeg" + suffix, exe);
 		}
-//		// pthreadGC2.dll
-//		if (isWindows) {
-//			File dll = new File(temp, "pthreadGC2.dll");
-//			if (!dll.exists()) {
-//				copyFile("pthreadGC2.dll", dll);
-//			}
-//		}
 		// Need a chmod?
 		if (!isWindows) {
 			Runtime runtime = Runtime.getRuntime();
@@ -116,24 +111,12 @@ public class DefaultFFMPEGLocator extends FFMPEGLocator {
 			while ((l = input.read(buffer)) != -1) {
 				output.write(buffer, 0, l);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Cannot write file "
-					+ dest.getAbsolutePath());
+					+ dest.getAbsolutePath() + " from path " + path);
 		} finally {
-			if (output != null) {
-				try {
-					output.close();
-				} catch (Throwable t) {
-					;
-				}
-			}
-			if (input != null) {
-				try {
-					input.close();
-				} catch (Throwable t) {
-					;
-				}
-			}
+			IOUtils.closeQuietly(output);
+			IOUtils.closeQuietly(input);
 		}
 	}
 

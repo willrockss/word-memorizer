@@ -78,14 +78,13 @@ public class WordManagementController {
                 //Если всё успешно сконвертировалось, добавляет слово в БД
                 db.addWord(nextWordId, word, videoId);
                 db.addWordToDictionary(videoId, wordManagementForm.getDictId());
+
+                redirectAttributes.addFlashAttribute("message",
+                        "Слово успешно добавлено " + file.getOriginalFilename() + "!");
             } catch (Exception e) {
                 errorValue = "Невозможно добавить слово из-за: " + e.getMessage();
                 e.printStackTrace();
             }
-
-            redirectAttributes.addFlashAttribute("message",
-                    "Слово успешно добавлено " + file.getOriginalFilename() + "!");
-
         }
 
         if (errorValue != null) {
